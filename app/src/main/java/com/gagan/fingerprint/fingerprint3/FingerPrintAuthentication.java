@@ -1,4 +1,4 @@
-package com.gagan.fingerprint;
+package com.gagan.fingerprint.fingerprint3;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -17,6 +17,8 @@ import android.security.keystore.KeyProperties;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
+
+import com.gagan.fingerprint.MainActivity;
 
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
@@ -47,7 +49,7 @@ public class FingerPrintAuthentication {
 
     public void managerFingerPrint(final OnScanFingerPrintInterface listener, ProgressDialog progressDialog) {
         this.onScanFingerprintlistener = listener;
-        this.progressDialog = progressDialog;
+        //this.progressDialog = progressDialog;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //Toast.makeText(context, "Please touch your finger on fingerprint scanner for authentaction", Toast.LENGTH_SHORT).show()
@@ -68,10 +70,10 @@ public class FingerPrintAuthentication {
                     }
                 });
                 thread.start();
-                progressDialog.dismiss();
+                //progressDialog.dismiss();
             }
         } else {
-            progressDialog.dismiss();
+            //progressDialog.dismiss();
             //TODO("VERSION.SDK_INT < M")
         }
     }

@@ -1,4 +1,4 @@
-package com.gagan.fingerprint;
+package com.gagan.fingerprint.fingerprint2;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -11,37 +11,49 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-@TargetApi(Build.VERSION_CODES.M)
-public class FingerprintHandler1 extends FingerprintManager.AuthenticationCallback {
-    private Context context;
+import com.gagan.fingerprint.R;
 
-    public FingerprintHandler1(Context context) {
+
+@TargetApi(Build.VERSION_CODES.M)
+public class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
+    private final Context context;
+    private final OnScanFingerPrintInterface onScanFingerprintSuccess;
+    private Boolean isAuthenticationSucessfull = false;
+    private CancellationSignal cancellationSignal = null;
+
+    public FingerprintHandler(Context context, OnScanFingerPrintInterface onScanFingerprintSuccess) {
         this.context = context;
+        this.onScanFingerprintSuccess = onScanFingerprintSuccess;
     }
 
     public void startAuth(FingerprintManager fingerprintManager, FingerprintManager.CryptoObject cryptoObject) {
-        CancellationSignal cancellationSignal = new CancellationSignal();
+        cancellationSignal = new CancellationSignal();
         fingerprintManager.authenticate(cryptoObject, cancellationSignal, 0, this, null);
     }
 
     @Override
     public void onAuthenticationError(int errorCode, CharSequence errString) {
-        this.update("There was an Auth Error. " + errString, false);
+        //this.update("There was an Auth Error. " + errString, false);
+        onScanFingerprintSuccess.onFingerPrintError();
     }
 
     @Override
     public void onAuthenticationFailed() {
-        this.update("Auth Failed. ", false);
+        //this.update("Auth Failed. ", false);
+        onScanFingerprintSuccess.onFingerPrintFailed();
+        //isAuthenticationSucessfull = false;
     }
 
     @Override
     public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
-        this.update("Error: " + helpString, false);
+        //this.update("Error: " + helpString, false);
+        onScanFingerprintSuccess.onFingerPrintHelp();
     }
 
     @Override
     public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
-        this.update("You can now access the app.", true);
+        //this.update("You can now access the app.", true);
+        onScanFingerprintSuccess.onFingerPrintSuccess();
     }
 
     private void update(String s, boolean b) {

@@ -18,6 +18,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".fingerprint1.BiometricLogin1Activity" />
+
+        <activity android:name=".fingerprint2.BiometricLogin2Activity" />
+
+        <activity android:name=".fingerprint3.BiometricLogin3Activity" />
+
     </application>
 
 </manifest>

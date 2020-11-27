@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,25 +17,24 @@
         android:textColor="@android:color/black"
         android:textSize="24sp" />
 
-    <Button
-        android:id="@+id/btnFingerPrint1"
+    <ImageView
+        android:id="@+id/fingerprintImage"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        app:srcCompat="@mipmap/ic_launcher" />
+
+    <TextView
+        android:id="@+id/paraLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Finger Print 1" />
+        android:padding="20dp"
+        android:text="Place your Finger on the Scanner to Proceed"
+        android:textAlignment="center"
+        tools:ignore="RtlCompat" />
 
     <Button
-        android:id="@+id/btnFingerPrint2"
+        android:id="@+id/btnBiometricLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Finger Print 2" />
-
-    <Button
-        android:id="@+id/btnFingerPrint3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Finger Print 3" />
-
+        android:text="Login" />
 </LinearLayout>
