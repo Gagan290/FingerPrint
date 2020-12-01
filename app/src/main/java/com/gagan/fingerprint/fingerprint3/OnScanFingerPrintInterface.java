@@ -12,4 +12,6 @@ public interface OnScanFingerPrintInterface {
     void onFingerPrintSuccess(FingerprintManager.AuthenticationResult result);
 
     void onFingerPrintCancel();
+
+    void onNormalLogin();
 }

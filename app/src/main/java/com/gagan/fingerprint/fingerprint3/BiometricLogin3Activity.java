@@ -1,15 +1,11 @@
 package com.gagan.fingerprint.fingerprint3;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.KeyguardManager;
 import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyPermanentlyInvalidatedException;
-import android.security.keystore.KeyProperties;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,20 +16,9 @@ import androidx.core.content.ContextCompat;
 
 import com.gagan.fingerprint.R;
 
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class BiometricLogin3Activity extends AppCompatActivity {// implements OnScanFingerPrintInterface {
@@ -52,15 +37,10 @@ public class BiometricLogin3Activity extends AppCompatActivity {// implements On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_biometric_login3);
 
-        mHeadingLabel = (TextView) findViewById(R.id.headingLabel);
-        mFingerprintImage = (ImageView) findViewById(R.id.fingerprintImage);
-        mParaLabel = (TextView) findViewById(R.id.paraLabel);
+        mHeadingLabel = findViewById(R.id.headingLabel);
+        mFingerprintImage = findViewById(R.id.fingerprintImage);
+        mParaLabel = findViewById(R.id.paraLabel);
 
-        // Check 1: Android version should be greater or equal to Marshmallow
-        // Check 2: Device has Fingerprint Scanner
-        // Check 3: Have permission to use fingerprint scanner in the app
-        // Check 4: Lock screen is secured with atleast 1 type of lock
-        // Check 5: Atleast 1 Fingerprint is registered
 
         findViewById(R.id.btnBiometricLogin).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,26 +70,38 @@ public class BiometricLogin3Activity extends AppCompatActivity {// implements On
                             @Override
                             public void onFingerPrintFailed() {
                                 updateStatus(getResources().getString(R.string.fingerprint_failed));
+                                updateLogo("failed");
                             }
 
                             @Override
                             public void onFingerPrintError(Integer errMsgId, CharSequence errString) {
                                 updateStatus(errString.toString());
+                                updateLogo("failed");
                             }
 
                             @Override
                             public void onFingerPrintHelp(Integer helpMsgId, CharSequence helpString) {
                                 updateStatus(helpString.toString());
+                                updateLogo("failed");
                             }
 
                             @Override
                             public void onFingerPrintSuccess(FingerprintManager.AuthenticationResult result) {
                                 updateStatus("You can now access the app.");
-                                //dismissDialog();
+                                updateLogo("success");
+                                dismissDialog();
                             }
 
                             @Override
                             public void onFingerPrintCancel() {
+                                updateLogo("");
+                                dismissDialog();
+                            }
+
+                            @Override
+                            public void onNormalLogin() {
+                                updateStatus("You can now normal login");
+                                updateLogo("");
                                 dismissDialog();
                             }
                         };
@@ -117,41 +109,6 @@ public class BiometricLogin3Activity extends AppCompatActivity {// implements On
 
                         new FingerPrintAuthentication(BiometricLogin3Activity.this)
                                 .managerFingerPrint(listener, null);
-
-                        /*new FingerPrintAuthentication(BiometricLogin3Activity.this)
-                                .managerFingerPrint(new OnScanFingerPrintInterface() {
-                                    @Override
-                                    public void onFingerPrintFailed() {
-                                        update("Auth Failed. ", false);
-                                    }
-
-                                    @Override
-                                    public void onFingerPrintError() {
-                                        update("There was an Auth Error. ", false);
-                                    }
-
-                                    @Override
-                                    public void onFingerPrintHelp() {
-                                        update("Error: ", false);
-                                    }
-
-                                    @Override
-                                    public void onFingerPrintSuccess() {
-                                        update("You can now access the app.", true);
-                                    }
-
-                                    @Override
-                                    public void onFingerPrintCancel() {
-
-                                    }
-                                }, null);*/
-
-                        /*generateKey();
-                        if (cipherInit()) {
-                            FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
-                            FingerprintHandler fingerprintHandler = new FingerprintHandler(this);
-                            fingerprintHandler.startAuth(fingerprintManager, cryptoObject);
-                        }*/
                     }
                 }
             }
@@ -160,10 +117,6 @@ public class BiometricLogin3Activity extends AppCompatActivity {// implements On
 
     private void displayFingerPrintDialog(OnScanFingerPrintInterface listener) {
         fingerprintDialog = new FingerPrintDialog(this, listener);
-        fingerprintDialog.setTitle("Login");
-        fingerprintDialog.setSubtitle("Login to your account");
-        fingerprintDialog.setDescription("Place your finger on the device home button to verify your identity");
-        fingerprintDialog.setButtonText("CANCEL");
         fingerprintDialog.show();
     }
 
@@ -175,76 +128,13 @@ public class BiometricLogin3Activity extends AppCompatActivity {// implements On
 
     private void updateStatus(String status) {
         if (fingerprintDialog != null) {
-            fingerprintDialog.updateStatus(status);
+            //fingerprintDialog.updateStatus(status);
         }
     }
 
-    private void update(String s, boolean b) {
-        mParaLabel.setText(s);
-
-        if (b == false) {
-            mParaLabel.setTextColor(ContextCompat.getColor(this, R.color.colorAccent));
-        } else {
-            mParaLabel.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            mFingerprintImage.setImageResource(R.mipmap.action_done);
+    private void updateLogo(String status) {
+        if (fingerprintDialog != null) {
+            fingerprintDialog.updateLogo(status);
         }
-    }
-
-    @TargetApi(Build.VERSION_CODES.M)
-    private void generateKey() {
-
-        try {
-
-            keyStore = KeyStore.getInstance("AndroidKeyStore");
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
-
-            keyStore.load(null);
-            keyGenerator.init(new
-                    KeyGenParameterSpec.Builder(KEY_NAME,
-                    KeyProperties.PURPOSE_ENCRYPT |
-                            KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                    .setUserAuthenticationRequired(true)
-                    .setEncryptionPaddings(
-                            KeyProperties.ENCRYPTION_PADDING_PKCS7)
-                    .build());
-            keyGenerator.generateKey();
-
-        } catch (KeyStoreException | IOException | CertificateException
-                | NoSuchAlgorithmException | InvalidAlgorithmParameterException
-                | NoSuchProviderException e) {
-
-            e.printStackTrace();
-
-        }
-
-    }
-
-    @TargetApi(Build.VERSION_CODES.M)
-    public boolean cipherInit() {
-        try {
-            cipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/" + KeyProperties.ENCRYPTION_PADDING_PKCS7);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            throw new RuntimeException("Failed to get Cipher", e);
-        }
-
-
-        try {
-
-            keyStore.load(null);
-
-            SecretKey key = (SecretKey) keyStore.getKey(KEY_NAME,
-                    null);
-
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-
-            return true;
-
-        } catch (KeyPermanentlyInvalidatedException e) {
-            return false;
-        } catch (KeyStoreException | CertificateException | UnrecoverableKeyException | IOException | NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new RuntimeException("Failed to init Cipher", e);
-        }
-
     }
 }
