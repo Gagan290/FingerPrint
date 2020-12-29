@@ -1,11 +1,14 @@
 package com.gagan.fingerprint.fingerprint3;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.KeyguardManager;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,6 +17,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.gagan.fingerprint.MainActivity;
 import com.gagan.fingerprint.R;
 
 import java.security.KeyStore;
@@ -61,6 +65,40 @@ public class BiometricLogin3Activity extends AppCompatActivity {// implements On
 
                     } else if (!fingerprintManager.hasEnrolledFingerprints()) {
                         mParaLabel.setText("You should add atleast 1 Fingerprint to use this Feature");
+
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(BiometricLogin3Activity.this);
+                        dialogBuilder.setMessage("You should add atleast 1 Fingerprint to use this Feature")
+                                .setCancelable(false);
+
+                        dialogBuilder.setNegativeButton("Cancel", (dialog, which) -> {
+                            Intent intent = new Intent(BiometricLogin3Activity.this, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK || Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        });
+
+                        dialogBuilder.setPositiveButton("Ok", (dialog, which) -> {
+                            Constants.IS_DIALOG_DISMISS = true;
+                            dialog.cancel();
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                Intent intent = new Intent(Settings.ACTION_FINGERPRINT_ENROLL);
+                                startActivity(intent);
+                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                Intent intent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
+                                startActivity(intent);
+                            }
+                        });
+
+                        AlertDialog alert = dialogBuilder.create();
+                        alert.setTitle("Fingerprint Authentication");
+                        if (!alert.isShowing()) {
+                            alert.show();
+                        }
 
                     } else {
                         mParaLabel.setText("Place your Finger on Scanner to Access the App.");

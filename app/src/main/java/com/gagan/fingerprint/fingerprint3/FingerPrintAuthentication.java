@@ -153,10 +153,11 @@ public class FingerPrintAuthentication {
 
         //progressDialog?.dismiss()
 
+        dialogBuilder = new AlertDialog.Builder(context);
+
         if (keyguardManager.isKeyguardSecure() == false) {
             //Log.e("FingerPrintAuthentication", "isKeyguardSecure");
 
-            dialogBuilder = new AlertDialog.Builder(context);
             dialogBuilder.setMessage("Lock screen security not enabled in Settings.")
                     .setCancelable(false);
 
